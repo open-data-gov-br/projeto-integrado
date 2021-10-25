@@ -3,17 +3,18 @@ from dbfread import DBF
 import os
 
 try:
-    path = 'D:\\02_PosDataScience\\09_Projeto integrado\\projeto\\files'
+    path = 'files\\'
     files = os.listdir(path)
 
     connection = mysql.connector.connect(host='localhost',
                                          database='votacao_camara_deputados',
                                          user='root',
                                          password='medsys')
-    for f in files:
-        print(f)
+    for file_name in files:
+        full_path = path + file_name
+
         cursor = connection.cursor()
-        for record in DBF('D:\\02_PosDataScience\\09_Projeto integrado\\projeto\\files\\' + f):
+        for record in DBF(full_path):
 
             values = "'" + record["NUMVOT"] + "','" + record["NOME_PAR"] + \
                 "','" + record["ESTADO"] + "','" + record["VOTO"] + \
