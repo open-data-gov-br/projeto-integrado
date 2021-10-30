@@ -39,6 +39,8 @@ https://www.camara.leg.br/noticias/665270-projeto-permite-que-radio-comunitaria-
  - Ler a quantidade de votos publicos em cada PL
  - Ler o "entenda a proposta" (Titulo, sub-titulo e 3 primeiros paragrafos)
 
+ Tabela PL_PLP_PEC (id, titulo, sub-titulo, paragrafos, quantidade_de_votos_publicos)
+
 ### Sprint 2
 - Escrever o artigo
 
@@ -53,4 +55,8 @@ https://www.camara.leg.br/noticias/665270-projeto-permite-que-radio-comunitaria-
 - Web app de um quiz básico que le de um arquivo .csv as perguntas e guarda as respostas
 - Algoritmo para coeficiente de correlacao [aula 04](https://github.com/andredarcie/my-data-science-notebooks/blob/master/estatistica-e-aplicacoes/aula04_pratica.ipynb)
 - Deploy no Heroku da aplicação web
+
+20/11/2021 - Versao preliminar
+29/01/2022 - Relatorio tecnico
+05/02/2022 - Defesa
 
