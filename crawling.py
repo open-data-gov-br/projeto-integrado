@@ -20,6 +20,11 @@ def post_page():
     lis = soup.find_all('li', attrs={'class': None})
 
     for li in lis:
-        print(li)
+        if li.find('a') != None:
+            url = li.find('a')['href']
+            text = li.find('a').text.strip()
+
+            if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
+                print(text, url)
 
 post_page()
