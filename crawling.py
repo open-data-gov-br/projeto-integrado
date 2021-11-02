@@ -11,8 +11,11 @@ def get_page(url):
     url = 'https://forms.camara.leg.br/' + soup.find('a')['href']
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
-    result = soup.find('a', attrs={'class':'enquete-descricao__link'})['href']
-    print(result)
+    url = soup.find('a', attrs={'class':'enquete-descricao__link'})['href']
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    titulo = soup.find('h1', attrs={'class':'g-artigo__titulo'})
+    print(titulo)
 
 def post_page():
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
@@ -28,6 +31,8 @@ def post_page():
             text = li.find('a').text.strip()
 
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
-                print(text, url)
+                print('-----' * 10)
+                print(url)
+                get_page(url)
 
-get_page('//www.camara.leg.br/internet/sileg/prop_lista.asp?sigla=PL&Numero=2633&Ano=2020')
+post_page()
