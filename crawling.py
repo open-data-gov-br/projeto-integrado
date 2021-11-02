@@ -1,15 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
 
-def get_page():
-    base_url = 'https://www2.camara.leg.br/atividade-legislativa/plenario/resultadoVotacao'
-
-    page = requests.get(base_url)
+def get_page(url):
+    url = 'https:' + url
+    page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
-    lis = soup.find_all('li', attrs={'class': None})
-
-    for li in lis:
-        print(li)
+    iframe_url = soup.find('iframe')['src']
+    page = requests.get(iframe_url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    url = 'https://forms.camara.leg.br/' + soup.find('a')['href']
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    result = soup.find('a', attrs={'class':'enquete-descricao__link'})['href']
+    print(result)
 
 def post_page():
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
@@ -27,4 +30,4 @@ def post_page():
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
                 print(text, url)
 
-post_page()
+get_page('//www.camara.leg.br/internet/sileg/prop_lista.asp?sigla=PL&Numero=2633&Ano=2020')
