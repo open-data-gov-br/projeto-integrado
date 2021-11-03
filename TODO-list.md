@@ -39,7 +39,9 @@ https://www.camara.leg.br/noticias/665270-projeto-permite-que-radio-comunitaria-
  - Ler a quantidade de votos publicos em cada PL
  - Ler o "entenda a proposta" (Titulo, sub-titulo e 3 primeiros paragrafos)
 
- Tabela PL_PLP_PEC (id, titulo, sub-titulo, paragrafos, quantidade_de_votos_publicos)
+ Tabela PL_PLP_PEC (id, titulo, sub-titulo, paragrafos, quantidade_de_votos_publicos, data_de_criacao)
+
+ data_de_criacao -> 
 
 ### Sprint 2
 - Escrever o artigo
