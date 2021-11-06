@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+from Artigo import Artigo
 
-
-def get_page(url):
+def get_article(url):
     url = 'https:' + url
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -15,9 +15,19 @@ def get_page(url):
     url = soup.find('a', attrs={'class': 'enquete-descricao__link'})['href']
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
-    titulo = soup.find('h1', attrs={'class': 'g-artigo__titulo'})
-    print(f'Título: {titulo}')
-    return titulo
+
+    titulo = soup.find('h1', attrs={'class': 'g-artigo__titulo'}).text
+    sub_titulo = soup.find('p', attrs={'class': 'g-artigo__descricao'}).text
+    data_hora = soup.find('p', attrs={'class': 'g-artigo__data-hora'}).text
+
+    div = soup.find('div', attrs={'class': 'js-article-read-more'})
+    resultado = ''
+    paragrafos = div.find_all('p', attrs={'class': None})
+    
+    for p in paragrafos:
+        resultado += p.text.strip()
+
+    return str(Artigo(titulo, sub_titulo, data_hora, resultado, 0))
 
 
 def get_dados_votacao(url):
@@ -72,14 +82,14 @@ def post_page():
             text = li.find('a').text.strip()
 
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
-                if get_page(url) != None:
-                    print('\n-----' * 10)
-                    print(f'Pagina proposicao: {url}')
-                    pegou_proposta = True
+                article = get_article(url)
+                print('----' * 10)
+                print(article)
+                pegou_proposta = True
 
             if pegou_proposta and text.startswith('Relação de votantes por UF'):
                 pegou_proposta = False
-                get_dados_votacao(url)
+                #get_dados_votacao(url)
 
 
 post_page()
