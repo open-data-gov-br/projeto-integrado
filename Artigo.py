@@ -3,7 +3,7 @@ class Artigo:
         self.titulo = titulo.strip().replace('\n','')
         self.sub_titulo = sub_titulo.strip().replace('\n','')
         self.data_hora = data_hora.strip()
-        self.paragrafos = paragrafos.strip()
+        self.paragrafos = paragrafos.strip().replace('\n', '')
         self.quantidade_de_votos_publicos = quantidade_de_votos_publicos
 
     def __str__(self):

@@ -116,15 +116,15 @@ def post_page():
                 artigos.append(artigo)
     
     # open the file in the write mode
-    with open('votacao.csv', 'w', encoding='UTF8', newline='') as file:
+    with open('artigos.csv', 'w', encoding='UTF8', newline='') as file:
         # create the csv writer
         writer = csv.writer(file)
 
-        writer.writerow(['titulo', 'sub-titulo'])
+        writer.writerow(['titulo', 'sub-titulo', 'paragrafos', 'votos_publicos'])
 
         for artigo in artigos:
             # write a row to the csv file
-            writer.writerow([str(artigo.titulo), artigo.sub_titulo])
+            writer.writerow([artigo.titulo, artigo.sub_titulo, artigo.paragrafos, artigo.quantidade_de_votos_publicos])
 
 
 post_page()
