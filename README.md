@@ -16,3 +16,8 @@ Linguagem de programaçâo Python, bibliotecas como Requests e Beautiful Soup e 
 
 ## Público-Alvo para a Solução Pretendida
 Brasileiros que votam
+
+## Como executar o projeto
+
+- set FLASK_APP=app.py 
+- flask run
