@@ -1,0 +1,38 @@
+{% extends "bootstrap/base.html" %}
+{% import  "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Projeto de Integração{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Projeto de Integração</h1>
+    </div>
+    <div class="page-body">
+        <form action="/" method="post" class="form">
+            {{ form.csrf_token }}
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            {{ wtf.form_field(form.uf, class='form-control') }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary">Iniciar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {% if name == 'No-name' %}
+                        <h2> Aguardando... </h2>
+                    {% else %}
+                        <h2> Teste... </h2>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
