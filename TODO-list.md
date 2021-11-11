@@ -36,7 +36,7 @@ https://www.camara.leg.br/noticias/665270-projeto-permite-que-radio-comunitaria-
 - Analise dos arquivos (.txt) tabulados com os votos, fazer a leitura com Python
 - Extrair os dados das paginas (4 páginas - web scraping)
  - Ler os votos e os deputados de cada PL se o plano de ler os .txts não der certo
- - Ler a quantidade de votos publicos em cada PL
+ - Ler a quantidade de votos publicos em cada PL (pegar do grafico)
  - Ler o "entenda a proposta" (Titulo, sub-titulo e 3 primeiros paragrafos)
 
  Tabela PL_PLP_PEC (id, titulo, sub-titulo, paragrafos, quantidade_de_votos_publicos, data_de_criacao)
