@@ -6,42 +6,64 @@ from typing import List
 from Voto import Voto
 
 def get_proposta(url) -> Proposta:
+    proposta:Proposta = Proposta('', '', '', '', '', '', '')
+
     url = 'https:' + url
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
+
+    # Bloco "O QUE VOCÊ ACHA DISSO?"
     iframe_url = soup.find('iframe')['src']
     page = requests.get(iframe_url)
     soup = BeautifulSoup(page.content, 'html.parser')
-    url = 'https://forms.camara.leg.br/' + soup.find('a')['href']
+
+    # Pagina da enquete
+    url = 'https://forms.camara.leg.br' + soup.find('a')['href']
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
+
+    # Link veja os resultados
+    url = soup.find_all('a', attrs={'class': 'link-com-icone-esquerda'})[1]['href']
+    url_da_enquete = 'https://forms.camara.leg.br' + url
+
+    page = requests.get(url_da_enquete)
+    soup_da_enquete = BeautifulSoup(page.content, 'html.parser')
+
+    quantidade_de_respostas = soup_da_enquete.find_all('td', attrs={ 'class' : 'grafico-barras__item resumo-resposta__participacoes' })
+    quantidade_total_de_respostas = 0
+
+    for quantidade_de_resposta in quantidade_de_respostas:
+        quantidade_total_de_respostas += int(quantidade_de_resposta.text.strip())
+
+    proposta.quantidade_de_votos_publicos = quantidade_total_de_respostas
+    #print('Total de votos: ', proposta.quantidade_de_votos_publicos)
+
+    # Link entenda a proposta
     url = soup.find('a', attrs={'class': 'enquete-descricao__link'})['href']
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
     if soup != None:
-        return extrai_dados_da_proposta(soup)
+        return extrai_dados_da_proposta(soup, proposta)
 
     return None
 
-def extrai_dados_da_proposta(soup) -> Proposta:
-    titulo = soup.find('h1', attrs={'class': 'g-artigo__titulo'}).text
+def extrai_dados_da_proposta(soup, proposta: Proposta) -> Proposta:
+    proposta.titulo = soup.find('h1', attrs={'class': 'g-artigo__titulo'}).text
 
-    sub_titulo = ''
     sub_titulo_element = soup.find('p', attrs={'class': 'g-artigo__descricao'})
     if sub_titulo_element != None:
-        sub_titulo = sub_titulo_element.text
+        proposta.sub_titulo = sub_titulo_element.text
 
-    data_hora = soup.find('p', attrs={'class': 'g-artigo__data-hora'}).text
+    proposta.data_hora = soup.find('p', attrs={'class': 'g-artigo__data-hora'}).text
 
     div = soup.find('div', attrs={'class': 'js-article-read-more'})
-    resultado = ''
     paragrafos = div.find_all('p', attrs={'class': None})
     
     for p in paragrafos:
-        resultado += p.text.strip().replace('\n', '')
+        proposta.paragrafos += p.text.strip().replace('\n', '')
 
-    return Proposta(titulo, sub_titulo, data_hora, resultado, 0)
+    return proposta
 
 
 def get_dados_votacao(url) -> List[Voto]:
@@ -51,17 +73,17 @@ def get_dados_votacao(url) -> List[Voto]:
     #print(f'Pagina voto: {url}')
 
     titulo = " ".join(soup.find_all('p')[2].text.split())
-    print('Titulo: ', titulo)
+    #print('Titulo: ', titulo)
 
     div = soup.find('div', attrs={'id': 'corpoVotacao'})
     inicio_votacao = div.find(
         "strong", text="Início da votação: ").next_sibling
-    print(f'\nInício votação: {inicio_votacao.strip()} ')
+    #print(f'\nInício votação: {inicio_votacao.strip()} ')
 
     itens = ','.join([''.join([item.previous_sibling, item.text, item.next_sibling])
                       for item in soup.select(".coluna1")])
     infoVotacao = ' '.join(itens.split()).replace(",", "\n")
-    print(f'\nDados Votacao:\n {infoVotacao} ')
+    #print(f'\nDados Votacao:\n {infoVotacao} ')
 
     listaVotacao = soup.find('div', attrs={'id': 'listagem'})
     table = listaVotacao.find('table', attrs={'class': 'tabela-2'})
@@ -95,14 +117,17 @@ def post_page():
     pegou_proposta = False
     propostas:List[Proposta] = list()
 
+    lis = lis[:20]
+    proposta: Proposta = Proposta('', '', '', '', '', '', '')
     for li in lis:
         if li.find('a') != None:
             url = li.find('a')['href']
             text = li.find('a').text.strip()
-            proposta: Proposta = None
+            
 
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
                 proposta = get_proposta(url)
+                print(proposta.quantidade_de_votos_publicos)
 
                 if proposta == None:
                     pegou_proposta = False
