@@ -92,7 +92,7 @@ def post_page():
     #    file.write(page.content)
 
     lis = soup.find_all('li', attrs={ 'class': None })
-    pegou_artigo = False
+    pegou_proposta = False
     propostas:List[Proposta] = list()
 
     for li in lis:
@@ -115,16 +115,14 @@ def post_page():
                 proposta.titulo = get_dados_votacao(url)
                 propostas.append(proposta)
     
-    # open the file in the write mode
-    with open('artigos.csv', 'w', encoding='UTF8', newline='') as file:
-        # create the csv writer
+
+    with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
 
         writer.writerow(['titulo', 'sub-titulo', 'paragrafos', 'votos_publicos'])
 
-        for artigo in artigos:
-            # write a row to the csv file
-            writer.writerow([artigo.titulo, artigo.sub_titulo, artigo.paragrafos, artigo.quantidade_de_votos_publicos])
+        for proposta in propostas:
+            writer.writerow([proposta.titulo, proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
 
 
 post_page()
