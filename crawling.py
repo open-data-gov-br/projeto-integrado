@@ -1,9 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
-from Artigo import Artigo
+from Proposta import Proposta
 import csv
+from typing import List
+from Voto import Voto
 
-def get_article(url):
+def get_proposta(url) -> Proposta:
     url = 'https:' + url
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -18,13 +20,12 @@ def get_article(url):
     soup = BeautifulSoup(page.content, 'html.parser')
 
     if soup != None:
-        return extrai_dados_do_artigo(soup)
+        return extrai_dados_da_proposta(soup)
 
-    return ''
+    return None
 
-def extrai_dados_do_artigo(soup):
+def extrai_dados_da_proposta(soup) -> Proposta:
     titulo = soup.find('h1', attrs={'class': 'g-artigo__titulo'}).text
-    print('-->', titulo)
 
     sub_titulo = ''
     sub_titulo_element = soup.find('p', attrs={'class': 'g-artigo__descricao'})
@@ -40,10 +41,10 @@ def extrai_dados_do_artigo(soup):
     for p in paragrafos:
         resultado += p.text.strip().replace('\n', '')
 
-    return Artigo(titulo, sub_titulo, data_hora, resultado, 0)
+    return Proposta(titulo, sub_titulo, data_hora, resultado, 0)
 
 
-def get_dados_votacao(url):
+def get_dados_votacao(url) -> List[Voto]:
     url = 'https://www.camara.leg.br/internet/votacao/' + url
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -92,28 +93,27 @@ def post_page():
 
     lis = soup.find_all('li', attrs={ 'class': None })
     pegou_artigo = False
-    artigos = []
-    titulos = []
+    propostas:List[Proposta] = list()
 
     for li in lis:
         if li.find('a') != None:
             url = li.find('a')['href']
             text = li.find('a').text.strip()
+            proposta: Proposta = None
 
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
-                print('----' * 10)
-                artigo = get_article(url)
+                proposta = get_proposta(url)
 
-                if artigo == '':
-                    pegou_artigo = False
-                    print('Artigo não encontrado')
+                if proposta == None:
+                    pegou_proposta = False
+                    print('Proposta não encontrada')
                 else:
-                    pegou_artigo = True
+                    pegou_proposta = True
 
-            if pegou_artigo and text.startswith('Relação de votantes por UF'):
-                pegou_artigo = False
-                artigo.titulo = get_dados_votacao(url)
-                artigos.append(artigo)
+            if pegou_proposta and text.startswith('Relação de votantes por UF'):
+                pegou_proposta = False
+                proposta.titulo = get_dados_votacao(url)
+                propostas.append(proposta)
     
     # open the file in the write mode
     with open('artigos.csv', 'w', encoding='UTF8', newline='') as file:
