@@ -54,8 +54,8 @@ def extrai_dados_da_proposta(soup, proposta: Proposta) -> Proposta:
     sub_titulo_element = soup.find('p', attrs={'class': 'g-artigo__descricao'})
     if sub_titulo_element != None:
         proposta.sub_titulo = sub_titulo_element.text
-
-    proposta.data_hora = soup.find('p', attrs={'class': 'g-artigo__data-hora'}).text
+    else:
+        proposta.sub_titulo = 'sub-titulo'
 
     div = soup.find('div', attrs={'class': 'js-article-read-more'})
     paragrafos = div.find_all('p', attrs={'class': None})
@@ -66,7 +66,7 @@ def extrai_dados_da_proposta(soup, proposta: Proposta) -> Proposta:
     return proposta
 
 
-def get_dados_votacao(url) -> List[Voto]:
+def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     url = 'https://www.camara.leg.br/internet/votacao/' + url
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -78,7 +78,7 @@ def get_dados_votacao(url) -> List[Voto]:
     div = soup.find('div', attrs={'id': 'corpoVotacao'})
     inicio_votacao = div.find(
         "strong", text="Início da votação: ").next_sibling
-    #print(f'\nInício votação: {inicio_votacao.strip()} ')
+    proposta.data_hora = inicio_votacao.strip().replace('\n', '')
 
     itens = ','.join([''.join([item.previous_sibling, item.text, item.next_sibling])
                       for item in soup.select(".coluna1")])
@@ -101,7 +101,7 @@ def get_dados_votacao(url) -> List[Voto]:
         voto = ""
 
     #print(f'\nVotos: {lista_voto}')
-    return titulo
+    return proposta
 
 def post_page():
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
@@ -137,17 +137,17 @@ def post_page():
 
             if pegou_proposta and text.startswith('Relação de votantes por UF'):
                 pegou_proposta = False
-                proposta.titulo = get_dados_votacao(url)
+                proposta = get_dados_votacao(url, proposta)
                 propostas.append(proposta)
     
 
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
 
-        writer.writerow(['titulo', 'sub-titulo', 'paragrafos', 'votos_publicos'])
+        writer.writerow(['titulo', 'sub-titulo', 'data_hora','paragrafos', 'votos_publicos'])
 
         for proposta in propostas:
-            writer.writerow([proposta.titulo, proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
+            writer.writerow([proposta.titulo, proposta.sub_titulo, proposta.data_hora, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
 
 
 post_page()
