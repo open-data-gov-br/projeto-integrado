@@ -6,7 +6,7 @@ from typing import List
 from Voto import Voto
 
 def get_proposta(url) -> Proposta:
-    proposta:Proposta = Proposta('', '', '', '', '', '', '')
+    proposta:Proposta = Proposta('', '', '', '', '', '', '', '')
 
     url = 'https:' + url
     page = requests.get(url)
@@ -118,7 +118,7 @@ def post_page():
     propostas:List[Proposta] = list()
 
     lis = lis[:20]
-    proposta: Proposta = Proposta('', '', '', '', '', '', '')
+    proposta: Proposta = Proposta('', '', '', '', '', '', '', '')
     for li in lis:
         if li.find('a') != None:
             url = li.find('a')['href']
@@ -127,6 +127,7 @@ def post_page():
 
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
                 proposta = get_proposta(url)
+                proposta.codigo = text
                 print(proposta.quantidade_de_votos_publicos)
 
                 if proposta == None:
@@ -144,10 +145,10 @@ def post_page():
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
 
-        writer.writerow(['titulo', 'sub-titulo', 'data_hora','paragrafos', 'votos_publicos'])
+        writer.writerow(['codigo', 'titulo', 'sub-titulo', 'data_hora','paragrafos', 'votos_publicos'])
 
         for proposta in propostas:
-            writer.writerow([proposta.titulo, proposta.sub_titulo, proposta.data_hora, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
+            writer.writerow([proposta.codigo, proposta.titulo, proposta.sub_titulo, proposta.data_hora, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
 
 
 post_page()
