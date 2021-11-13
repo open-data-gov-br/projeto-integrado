@@ -139,16 +139,17 @@ def post_page():
             if pegou_proposta and text.startswith('Relação de votantes por UF'):
                 pegou_proposta = False
                 proposta = get_dados_votacao(url, proposta)
+                proposta.id = (str(proposta.codigo.split("Nº",1)[1]) + str(proposta.data_hora)).replace('/', '').replace(':', '').replace(' ', '').strip()
                 propostas.append(proposta)
     
 
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
 
-        writer.writerow(['codigo', 'titulo', 'sub-titulo', 'data_hora','paragrafos', 'votos_publicos'])
+        writer.writerow(['id', 'codigo', 'data_hora', 'titulo', 'sub-titulo', 'paragrafos', 'votos_publicos'])
 
         for proposta in propostas:
-            writer.writerow([proposta.codigo, proposta.titulo, proposta.sub_titulo, proposta.data_hora, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
+            writer.writerow([proposta.id, proposta.codigo, proposta.data_hora, proposta.titulo, proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
 
 
 post_page()
