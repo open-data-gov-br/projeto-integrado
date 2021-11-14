@@ -1,0 +1,2 @@
+class IndicacaoVotoPartido:
+    pass

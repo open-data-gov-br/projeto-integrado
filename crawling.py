@@ -3,10 +3,10 @@ from bs4 import BeautifulSoup
 from Proposta import Proposta
 import csv
 from typing import List
-from Voto import Voto
+from VotoDeputado import VotoDeputado
 
 def get_proposta(url) -> Proposta:
-    proposta:Proposta = Proposta('', '', '', '', '', '', '', '')
+    proposta:Proposta = Proposta('', '', '', '', '', '', '', '', '')
 
     url = 'https:' + url
     page = requests.get(url)
@@ -118,7 +118,7 @@ def post_page():
     propostas:List[Proposta] = list()
 
     lis = lis[:20]
-    proposta: Proposta = Proposta('', '', '', '', '', '', '', '')
+    proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
     for li in lis:
         if li.find('a') != None:
             url = li.find('a')['href']
