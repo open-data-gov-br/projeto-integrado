@@ -4,6 +4,7 @@ from Proposta import Proposta
 import csv
 from typing import List
 from VotoDeputado import VotoDeputado
+from IndicacaoVotoPartido import IndicacaoVotoPartido
 
 
 def get_proposta(url) -> Proposta:
@@ -40,7 +41,7 @@ def get_proposta(url) -> Proposta:
             quantidade_de_resposta.text.strip())
 
     proposta.quantidade_de_votos_publicos = quantidade_total_de_respostas
-    #print('Total de votos: ', proposta.quantidade_de_votos_publicos)
+    # print('Total de votos: ', proposta.quantidade_de_votos_publicos)
 
     # Link entenda a proposta
     url = soup.find('a', attrs={'class': 'enquete-descricao__link'})['href']
@@ -75,37 +76,48 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     url = 'https://www.camara.leg.br/internet/votacao/' + url
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
-    #print(f'Pagina voto: {url}')
 
     div = soup.find('div', attrs={'id': 'corpoVotacao'})
     inicio_votacao = div.find(
         "strong", text="Início da votação: ").next_sibling
     proposta.data_hora = inicio_votacao.strip().replace('\n', '')
 
+    # Indicacao de voto pelo partido
+    listaPartido = soup.find(
+        'div', attrs={'class': 'grid-cell size1of2 last-cell'})
+    tablePartido = listaPartido.find('table', attrs={'class': 'tabela-2'})
+    trsPartido = tablePartido.find_all('tr')
+    lista_votosPartido: List[IndicacaoVotoPartido] = list()
+
+    for tr in trsPartido:
+        indicacaoPartido: IndicacaoVotoPartido = IndicacaoVotoPartido(
+            '', '', '')
+        indicacaoPartido.nome_do_partido = tr.find('th').text.strip()[:-1]
+        indicacaoPartido.voto = tr.find('td').text.strip()
+        lista_votosPartido.append(indicacaoPartido)
+    proposta.indicacao_de_votos_dos_partidos = lista_votosPartido
+
+    # Votacao dos Deputados
     listaVotacao = soup.find('div', attrs={'id': 'listagem'})
     table = listaVotacao.find('table', attrs={'class': 'tabela-2'})
     table_body = table.find('tbody')
     trs = table_body.find_all('tr')
-
     lista_votos: List[VotoDeputado] = list()
     estado = ''
 
     for tr in trs:
         votoDeputado: VotoDeputado = VotoDeputado('', '', '', '', '')
-
         if tr.find('th') != None:
             estado = tr.text.strip()
-
         tds = tr.find_all('td')
+
         for td in tds:
             if not(td.has_attr('colspan')):
                 votoDeputado.nome_do_deputado = tds[0].text.strip()
                 votoDeputado.nome_do_partido = tds[1].text.strip()
                 votoDeputado.voto = tds[3].text.strip()
-
         votoDeputado.uf = estado
         lista_votos.append(votoDeputado)
-
     proposta.votos_dos_deputados = lista_votos
 
     return proposta
@@ -152,27 +164,31 @@ def post_page():
 
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
-
         writer.writerow(['id', 'codigo', 'data_hora', 'titulo',
                          'sub-titulo', 'paragrafos', 'votos_publicos'])
 
-        for proposta in propostas:
-            writer.writerow([proposta.id, proposta.codigo, proposta.data_hora, proposta.titulo,
-                             proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
+        with open('votosDeputados.csv', 'w', encoding='UTF8', newline='') as fileVotoDeputado:
+            writerVotoDeputado = csv.writer(fileVotoDeputado)
+            writerVotoDeputado.writerow(['id', 'nome_do_deputado',
+                                         'nome_do_partido', 'uf', 'voto'])
 
-    with open('votosDeputados.csv', 'w', encoding='UTF8', newline='') as fileVotoDeputado:
-        writer = csv.writer(fileVotoDeputado)
+            with open('IndicacaoVotoPartido.csv', 'w', encoding='UTF8', newline='') as fileIndicacaoPartido:
+                writerIndicacaoPartido = csv.writer(
+                    fileIndicacaoPartido)
+                writerIndicacaoPartido.writerow(
+                    ['id', 'nome_do_partido', 'voto'])
 
-        writer.writerow(['id', 'nome_do_deputado',
-                         'nome_do_partido', 'uf', 'voto'])
+                for proposta in propostas:
+                    writer.writerow([proposta.id, proposta.codigo, proposta.data_hora, proposta.titulo,
+                                     proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
 
-        for proposta in propostas:
-            for votosDeputados in proposta.votos_dos_deputados:
-                writer.writerow([proposta.id,
-                                 votosDeputados.nome_do_deputado,
-                                 votosDeputados.nome_do_partido,
-                                 votosDeputados.uf,
-                                 votosDeputados.voto])
+                    for votoDeputado in (proposta.votos_dos_deputados):
+                        writerVotoDeputado.writerow(
+                            [proposta.id, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
+
+                        for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
+                            writerIndicacaoPartido.writerow(
+                                [proposta.id, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
 
 
 post_page()
