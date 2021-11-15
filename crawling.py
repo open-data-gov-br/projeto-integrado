@@ -88,25 +88,22 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     trs = table_body.find_all('tr')
 
     lista_votos: List[VotoDeputado] = list()
-    
+    estado = ''
+
     for tr in trs:
         votoDeputado: VotoDeputado = VotoDeputado('', '', '', '', '')
 
         if tr.find('th') != None:
-            votoDeputado.uf = tr.text.strip()
-        else:
-            tds = tr.find_all('td')
-            tdVotacao = True
-            for td in tds:
-                if (td.has_attr('colspan')):
-                    tdVotacao = False
+            estado = tr.text.strip()
 
-            if tdVotacao:
+        tds = tr.find_all('td')
+        for td in tds:
+            if not(td.has_attr('colspan')):
                 votoDeputado.nome_do_deputado = tds[0].text.strip()
                 votoDeputado.nome_do_partido = tds[1].text.strip()
                 votoDeputado.voto = tds[3].text.strip()
 
-        #print(f'{votoDeputado.nome_do_deputado}{votoDeputado.nome_do_partido}{votoDeputado.voto}')
+        votoDeputado.uf = estado
         lista_votos.append(votoDeputado)
 
     proposta.votos_dos_deputados = lista_votos
@@ -153,7 +150,6 @@ def post_page():
                                1]) + str(proposta.data_hora)).replace('/', '').replace(':', '').replace(' ', '').strip()
                 propostas.append(proposta)
 
-
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
 
@@ -173,10 +169,10 @@ def post_page():
         for proposta in propostas:
             for votosDeputados in proposta.votos_dos_deputados:
                 writer.writerow([proposta.id,
-                            votosDeputados.nome_do_deputado,
-                            votosDeputados.nome_do_partido,
-                            votosDeputados.uf,
-                            votosDeputados.voto])
+                                 votosDeputados.nome_do_deputado,
+                                 votosDeputados.nome_do_partido,
+                                 votosDeputados.uf,
+                                 votosDeputados.voto])
 
 
 post_page()
