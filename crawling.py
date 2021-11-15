@@ -117,7 +117,13 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
                 votoDeputado.nome_do_partido = tds[1].text.strip()
                 votoDeputado.voto = tds[3].text.strip()
                 votoDeputado.uf = estado
-                lista_votos.append(votoDeputado)
+
+        if (votoDeputado.nome_do_deputado != '' and
+                votoDeputado.nome_do_partido != '' and
+                votoDeputado.voto != '' and
+                votoDeputado.uf != ''):
+            lista_votos.append(votoDeputado)
+
     proposta.votos_dos_deputados = lista_votos
 
     return proposta
