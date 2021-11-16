@@ -164,37 +164,37 @@ def post_page():
             if pegou_proposta and text.startswith('Relação de votantes por UF'):
                 pegou_proposta = False
                 proposta = get_dados_votacao(url, proposta)
-                proposta.id = (str(proposta.codigo.split("Nº", 1)[
-                               1]) + str(proposta.data_hora)).replace('/', '').replace(':', '').replace(' ', '').strip()
+                proposta.id_proposta = (str(proposta.codigo.split("Nº", 1)[
+                    1]) + str(proposta.data_hora)).replace('/', '').replace(':', '').replace(' ', '').strip()
                 propostas.append(proposta)
 
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['id', 'codigo', 'data_hora', 'titulo',
+        writer.writerow(['id_proposta', 'codigo', 'data_hora', 'titulo',
                          'sub-titulo', 'paragrafos', 'votos_publicos'])
 
         with open('votosDeputados.csv', 'w', encoding='UTF8', newline='') as fileVotoDeputado:
             writerVotoDeputado = csv.writer(fileVotoDeputado)
-            writerVotoDeputado.writerow(['id', 'nome_do_deputado',
+            writerVotoDeputado.writerow(['id_proposta', 'nome_do_deputado',
                                          'nome_do_partido', 'uf', 'voto'])
 
             with open('IndicacaoVotoPartido.csv', 'w', encoding='UTF8', newline='') as fileIndicacaoPartido:
                 writerIndicacaoPartido = csv.writer(
                     fileIndicacaoPartido)
                 writerIndicacaoPartido.writerow(
-                    ['id', 'nome_do_partido', 'voto'])
+                    ['id_proposta', 'nome_do_partido', 'voto'])
 
                 for proposta in propostas:
-                    writer.writerow([proposta.id, proposta.codigo, proposta.data_hora, proposta.titulo,
+                    writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,
                                      proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
 
                     for votoDeputado in (proposta.votos_dos_deputados):
                         writerVotoDeputado.writerow(
-                            [proposta.id, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
+                            [proposta.id_proposta, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
 
                         for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
                             writerIndicacaoPartido.writerow(
-                                [proposta.id, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
+                                [proposta.id_proposta, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
 
 
 post_page()

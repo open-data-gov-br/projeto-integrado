@@ -1,4 +1,4 @@
-id,nome_do_deputado,nome_do_partido,uf,voto
+id_proposta,nome_do_deputado,nome_do_partido,uf,voto
 108802018091120211302,Edio Lopes,PL,Roraima (RR),Sim
 108802018091120211302,Haroldo Cathedral,PSD,Roraima (RR),Sim
 108802018091120211302,Hiran Gonçalves,PP,Roraima (RR),Sim
