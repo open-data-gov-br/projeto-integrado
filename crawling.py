@@ -132,7 +132,7 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
 def post_page():
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
 
-    post_data = {'OutroMes': '01/11/2021'}
+    post_data = {'OutroMes': '01/10/2021'}
     page = requests.post(base_url, data=post_data)
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -192,9 +192,9 @@ def post_page():
                         writerVotoDeputado.writerow(
                             [proposta.id_proposta, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
 
-                        for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
-                            writerIndicacaoPartido.writerow(
-                                [proposta.id_proposta, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
+                    for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
+                        writerIndicacaoPartido.writerow(
+                            [proposta.id_proposta, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
 
 
 post_page()
