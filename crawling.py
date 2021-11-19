@@ -129,7 +129,7 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     return proposta
 
 
-def post_page():
+def post_page(post_data):
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
 
     post_data = {'OutroMes': '01/10/2021'}
