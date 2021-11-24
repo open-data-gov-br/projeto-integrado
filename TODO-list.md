@@ -54,6 +54,13 @@ https://www.camara.leg.br/noticias/665270-projeto-permite-que-radio-comunitaria-
      10. Referências	   
 
 - Tratar os dados e guardar em arquivos .csv
+ - endpoint que pega um numero X de propostas e devolve uma estrutura JSON pro front-end
+ - montar a tela das perguntas e guardar as respostas (1, 0, 0, 1)
+ - pega a votacao de uma proposta por Id (votosDeputados.csv filtrar uf e proposta_id) (IndicacaoVotoPartido.csv filtrar uf e proposta_id) 
+ ordenar pelo top X e invertido para os dois casos, deputados e partido, calculo de porcentagem
+ - endpoint que envia as respostas e devolve a lista de deputados e partidos em JSON
+ - criar uma tela pra exibir os resultados
+
 - Web app de um quiz básico que le de um arquivo .csv as perguntas e guarda as respostas
 - Algoritmo para coeficiente de correlacao [aula 04](https://github.com/andredarcie/my-data-science-notebooks/blob/master/estatistica-e-aplicacoes/aula04_pratica.ipynb)
 - Deploy no Heroku da aplicação web
