@@ -38,7 +38,7 @@ def get_proposta(url) -> Proposta:
 
     for quantidade_de_resposta in quantidade_de_respostas:
         quantidade_total_de_respostas += int(
-            quantidade_de_resposta.text.strip())
+            quantidade_de_resposta.text.replace('.', '').strip())
 
     proposta.quantidade_de_votos_publicos = quantidade_total_de_respostas
     # print('Total de votos: ', proposta.quantidade_de_votos_publicos)
@@ -55,7 +55,11 @@ def get_proposta(url) -> Proposta:
 
 
 def extrai_dados_da_proposta(soup, proposta: Proposta) -> Proposta:
-    proposta.titulo = soup.find('h1', attrs={'class': 'g-artigo__titulo'}).text
+    artigo_titulo = soup.find('h1', attrs={'class': 'g-artigo__titulo'})
+    if (artigo_titulo == None):
+        return None
+
+    proposta.titulo = artigo_titulo.text
 
     sub_titulo_element = soup.find('p', attrs={'class': 'g-artigo__descricao'})
     if sub_titulo_element != None:
@@ -80,7 +84,7 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     div = soup.find('div', attrs={'id': 'corpoVotacao'})
     inicio_votacao = div.find(
         "strong", text="Início da votação: ").next_sibling
-    proposta.data_hora = inicio_votacao.strip().replace('\n', '')
+    proposta.data_hora = inicio_votacao.strip().replace('\n', '').replace(' ', '').replace('/', '').replace(':', '')
 
     # Indicacao de voto pelo partido
     listaPartido = soup.find(
@@ -143,7 +147,6 @@ def post_page():
     pegou_proposta = False
     propostas: List[Proposta] = list()
 
-    lis = lis[:20]
     proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
     for li in lis:
         if li.find('a') != None:
@@ -152,20 +155,19 @@ def post_page():
 
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
                 proposta = get_proposta(url)
-                proposta.codigo = text
-                print(proposta.quantidade_de_votos_publicos)
-
                 if proposta == None:
                     pegou_proposta = False
                     print('Proposta não encontrada')
                 else:
+                    proposta.codigo = text
                     pegou_proposta = True
 
             if pegou_proposta and text.startswith('Relação de votantes por UF'):
                 pegou_proposta = False
                 proposta = get_dados_votacao(url, proposta)
                 proposta.id_proposta = (str(proposta.codigo.split("Nº", 1)[
-                    1]) + str(proposta.data_hora)).replace('/', '').replace(':', '').replace(' ', '').strip()
+                    1])).replace('/', '').replace(' ', '').strip()
+                print(proposta.titulo)
                 propostas.append(proposta)
 
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
