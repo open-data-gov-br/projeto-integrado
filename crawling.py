@@ -11,17 +11,23 @@ def get_proposta(url) -> Proposta:
     proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
 
     url = 'https:' + url
-    page = requests.get(url)
+    page = requests.get(url)    
+    if (page.status_code != 200):
+        return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Bloco "O QUE VOCÊ ACHA DISSO?"
     iframe_url = soup.find('iframe')['src']
-    page = requests.get(iframe_url)
+    page = requests.get(iframe_url)    
+    if (page.status_code != 200):
+        return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Pagina da enquete
     url = 'https://forms.camara.leg.br' + soup.find('a')['href']
     page = requests.get(url)
+    if (page.status_code != 200):        
+        return None    
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Link veja os resultados
@@ -30,6 +36,9 @@ def get_proposta(url) -> Proposta:
     url_da_enquete = 'https://forms.camara.leg.br' + url
 
     page = requests.get(url_da_enquete)
+    if (page.status_code != 200):
+        print(url_da_enquete)
+        return None    
     soup_da_enquete = BeautifulSoup(page.content, 'html.parser')
 
     quantidade_de_respostas = soup_da_enquete.find_all(
@@ -46,6 +55,8 @@ def get_proposta(url) -> Proposta:
     # Link entenda a proposta
     url = soup.find('a', attrs={'class': 'enquete-descricao__link'})['href']
     page = requests.get(url)
+    if (page.status_code != 200):
+        return None        
     soup = BeautifulSoup(page.content, 'html.parser')
 
     if soup != None:
@@ -79,6 +90,8 @@ def extrai_dados_da_proposta(soup, proposta: Proposta) -> Proposta:
 def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     url = 'https://www.camara.leg.br/internet/votacao/' + url
     page = requests.get(url)
+    if (page.status_code != 200):
+        return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
     div = soup.find('div', attrs={'id': 'corpoVotacao'})
@@ -136,8 +149,11 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
 def post_page():
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
 
-    post_data = {'OutroMes': '01/10/2021'}
+    post_data = {'OutroMes': '01/10/2021'}    
     page = requests.post(base_url, data=post_data)
+    if page.status_code != 200:
+        print('Página não encontrada')
+        return
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # with open("myfile.html", "w") as file:
@@ -154,21 +170,26 @@ def post_page():
             text = li.find('a').text.strip()
 
             if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
-                proposta = get_proposta(url)
-                if proposta == None:
+                try:
+                    proposta = get_proposta(url)
+                    if proposta == None:
+                        pegou_proposta = False
+                        print('Proposta não encontrada')
+                    else:
+                        proposta.codigo = text
+                        pegou_proposta = True
+                except Exception:
                     pegou_proposta = False
-                    print('Proposta não encontrada')
-                else:
-                    proposta.codigo = text
-                    pegou_proposta = True
+                    print('Falha ao pegar proposta')
 
             if pegou_proposta and text.startswith('Relação de votantes por UF'):
                 pegou_proposta = False
                 proposta = get_dados_votacao(url, proposta)
-                proposta.id_proposta = (str(proposta.codigo.split("Nº", 1)[
-                    1])).replace('/', '').replace(' ', '').strip()
-                print(proposta.titulo)
-                propostas.append(proposta)
+                if proposta != None:
+                    proposta.id_proposta = (str(proposta.codigo.split("Nº", 1)[
+                        1])).replace('/', '').replace(' ', '').strip()
+                    print(proposta.titulo)
+                    propostas.append(proposta)
 
     with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
         writer = csv.writer(file)
