@@ -5,7 +5,8 @@ import csv
 from typing import List
 from VotoDeputado import VotoDeputado
 from IndicacaoVotoPartido import IndicacaoVotoPartido
-
+import os.path
+import datetime
 
 def get_proposta(url) -> Proposta:
     proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
@@ -13,6 +14,7 @@ def get_proposta(url) -> Proposta:
     url = 'https:' + url
     page = requests.get(url)    
     if (page.status_code != 200):
+        #print(f"page.status_code 0 :{page.status_code}")
         return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -20,14 +22,16 @@ def get_proposta(url) -> Proposta:
     iframe_url = soup.find('iframe')['src']
     page = requests.get(iframe_url)    
     if (page.status_code != 200):
+        #print(f"page.status_code 1 :{page.status_code}")
         return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Pagina da enquete
     url = 'https://forms.camara.leg.br' + soup.find('a')['href']
     page = requests.get(url)
-    if (page.status_code != 200):        
-        return None    
+    if (page.status_code != 200):
+        #print(f"page.status_code 2 :{page.status_code}")
+        return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Link veja os resultados
@@ -37,6 +41,7 @@ def get_proposta(url) -> Proposta:
 
     page = requests.get(url_da_enquete)
     if (page.status_code != 200):
+        #print(f"page.status_code 3 :{page.status_code}")
         print(url_da_enquete)
         return None    
     soup_da_enquete = BeautifulSoup(page.content, 'html.parser')
@@ -56,6 +61,7 @@ def get_proposta(url) -> Proposta:
     url = soup.find('a', attrs={'class': 'enquete-descricao__link'})['href']
     page = requests.get(url)
     if (page.status_code != 200):
+        #print(f"page.status_code 4 :{page.status_code}")
         return None        
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -90,7 +96,9 @@ def extrai_dados_da_proposta(soup, proposta: Proposta) -> Proposta:
 def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     url = 'https://www.camara.leg.br/internet/votacao/' + url
     page = requests.get(url)
+    #print(page)
     if (page.status_code != 200):
+        #print(f"page.status_code 5 :{page.status_code}")
         return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -148,76 +156,80 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
 
 def post_page():
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
+    
+    year = datetime.datetime.now().date().strftime("%Y")
+    
+    for ano in range(year-2,year,1):
+        for mes in range(1,13):
+            data = '01/' + str(mes) + '/' + str(ano)
+            #print(data)
+            post_data = {'OutroMes': data}
 
-    post_data = {'OutroMes': '01/10/2021'}    
-    page = requests.post(base_url, data=post_data)
-    if page.status_code != 200:
-        print('Página não encontrada')
-        return
-    soup = BeautifulSoup(page.content, 'html.parser')
+            page = requests.post(base_url, data=post_data)
+            if page.status_code != 200:
+                #print(f"page.status_code 6 :{page.status_code}")
+                return
+            soup = BeautifulSoup(page.content, 'html.parser')
 
-    # with open("myfile.html", "w") as file:
-    #    file.write(page.content)
+            lis = soup.find_all('li', attrs={'class': None})
+            pegou_proposta = False
+            propostas: List[Proposta] = list()
 
-    lis = soup.find_all('li', attrs={'class': None})
-    pegou_proposta = False
-    propostas: List[Proposta] = list()
+            proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
+            for li in lis:
+                if li.find('a') != None:
+                    url = li.find('a')['href']
+                    text = li.find('a').text.strip()
 
-    proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
-    for li in lis:
-        if li.find('a') != None:
-            url = li.find('a')['href']
-            text = li.find('a').text.strip()
+                    if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
+                        try:
+                            proposta = get_proposta(url)
+                            if proposta == None:
+                                pegou_proposta = False
+                            else:
+                                proposta.codigo = text
+                                pegou_proposta = True
+                        except Exception:
+                            pegou_proposta = False
+                            print(f"Falha ao pegar proposta: {url}")
 
-            if text.startswith('PL') or text.startswith('PEC') or text.startswith('PLP'):
-                try:
-                    proposta = get_proposta(url)
-                    if proposta == None:
+                    if pegou_proposta and text.startswith('Relação de votantes por UF'):
                         pegou_proposta = False
-                        print('Proposta não encontrada')
-                    else:
-                        proposta.codigo = text
-                        pegou_proposta = True
-                except Exception:
-                    pegou_proposta = False
-                    print('Falha ao pegar proposta')
+                        proposta = get_dados_votacao(url, proposta)
+                        if proposta != None:
+                            proposta.id_proposta = (str(proposta.codigo.split("Nº", 1)[1])).replace('/', '').replace(' ', '').strip()
+                            print(proposta.titulo)
+                            propostas.append(proposta)
 
-            if pegou_proposta and text.startswith('Relação de votantes por UF'):
-                pegou_proposta = False
-                proposta = get_dados_votacao(url, proposta)
-                if proposta != None:
-                    proposta.id_proposta = (str(proposta.codigo.split("Nº", 1)[
-                        1])).replace('/', '').replace(' ', '').strip()
-                    print(proposta.titulo)
-                    propostas.append(proposta)
+            file_exists = os.path.exists('propostas.csv')
+            mode = 'a+' if file_exists else 'w'            
+            with open('propostas.csv', mode, encoding='UTF8', newline='') as file:
+                writer = csv.writer(file)
+                if(mode == 'w'):
+                    writer.writerow(['id_proposta', 'codigo', 'data_hora', 'titulo','sub-titulo', 'paragrafos', 'votos_publicos'])
 
-    with open('propostas.csv', 'w', encoding='UTF8', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['id_proposta', 'codigo', 'data_hora', 'titulo',
-                         'sub-titulo', 'paragrafos', 'votos_publicos'])
+                file_exists = os.path.exists('votosDeputados.csv')
+                mode = 'a+' if file_exists else 'w'
+                with open('votosDeputados.csv', mode, encoding='UTF8', newline='') as fileVotoDeputado:
+                    writerVotoDeputado = csv.writer(fileVotoDeputado)
+                    if(mode == 'w'):
+                        writerVotoDeputado.writerow(['id_proposta', 'nome_do_deputado','nome_do_partido', 'uf', 'voto'])
 
-        with open('votosDeputados.csv', 'w', encoding='UTF8', newline='') as fileVotoDeputado:
-            writerVotoDeputado = csv.writer(fileVotoDeputado)
-            writerVotoDeputado.writerow(['id_proposta', 'nome_do_deputado',
-                                         'nome_do_partido', 'uf', 'voto'])
+                    file_exists = os.path.exists('IndicacaoVotoPartido.csv')
+                    mode = 'a+' if file_exists else 'w'
+                    with open('IndicacaoVotoPartido.csv', 'a+', encoding='UTF8', newline='') as fileIndicacaoPartido:
+                        writerIndicacaoPartido = csv.writer(fileIndicacaoPartido)
+                        if(mode == 'w'):
+                            writerIndicacaoPartido.writerow(['id_proposta', 'nome_do_partido', 'voto'])
 
-            with open('IndicacaoVotoPartido.csv', 'w', encoding='UTF8', newline='') as fileIndicacaoPartido:
-                writerIndicacaoPartido = csv.writer(
-                    fileIndicacaoPartido)
-                writerIndicacaoPartido.writerow(
-                    ['id_proposta', 'nome_do_partido', 'voto'])
+                        for proposta in propostas:
+                            writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
 
-                for proposta in propostas:
-                    writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,
-                                     proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
+                            for votoDeputado in (proposta.votos_dos_deputados):
+                                writerVotoDeputado.writerow([proposta.id_proposta, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
 
-                    for votoDeputado in (proposta.votos_dos_deputados):
-                        writerVotoDeputado.writerow(
-                            [proposta.id_proposta, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
-
-                    for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
-                        writerIndicacaoPartido.writerow(
-                            [proposta.id_proposta, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
+                            for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
+                                writerIndicacaoPartido.writerow([proposta.id_proposta, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
 
 
 post_page()
