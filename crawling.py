@@ -9,7 +9,7 @@ import os.path
 import datetime
 
 def get_proposta(url) -> Proposta:
-    proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
+    proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '', '')
 
     url = 'https:' + url
     page = requests.get(url)    
@@ -29,8 +29,7 @@ def get_proposta(url) -> Proposta:
     # Pagina da enquete
     url = 'https://forms.camara.leg.br' + soup.find('a')['href']
     page = requests.get(url)
-    if (page.status_code != 200):
-        #print(f"page.status_code 2 :{page.status_code}")
+    if (page.status_code != 200):        
         return None
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -41,7 +40,6 @@ def get_proposta(url) -> Proposta:
 
     page = requests.get(url_da_enquete)
     if (page.status_code != 200):
-        #print(f"page.status_code 3 :{page.status_code}")
         print(url_da_enquete)
         return None    
     soup_da_enquete = BeautifulSoup(page.content, 'html.parser')
@@ -59,9 +57,9 @@ def get_proposta(url) -> Proposta:
 
     # Link entenda a proposta
     url = soup.find('a', attrs={'class': 'enquete-descricao__link'})['href']
-    page = requests.get(url)
-    if (page.status_code != 200):
-        #print(f"page.status_code 4 :{page.status_code}")
+    proposta.url = url
+    page = requests.get(url)    
+    if (page.status_code != 200):        
         return None        
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -157,17 +155,15 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
 def post_page():
     base_url = 'https://www.camara.leg.br/internet/votacao/default.asp'
     
-    year = datetime.datetime.now().date().strftime("%Y")
+    year = int(datetime.datetime.now().date().strftime("%Y"))
     
     for ano in range(year-2,year,1):
         for mes in range(1,13):
-            data = '01/' + str(mes) + '/' + str(ano)
-            #print(data)
+            data = '01/' + str(mes) + '/' + str(ano)            
             post_data = {'OutroMes': data}
 
             page = requests.post(base_url, data=post_data)
-            if page.status_code != 200:
-                #print(f"page.status_code 6 :{page.status_code}")
+            if page.status_code != 200:                
                 return
             soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -175,7 +171,7 @@ def post_page():
             pegou_proposta = False
             propostas: List[Proposta] = list()
 
-            proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '')
+            proposta: Proposta = Proposta('', '', '', '', '', '', '', '', '', '')
             for li in lis:
                 if li.find('a') != None:
                     url = li.find('a')['href']
@@ -206,7 +202,7 @@ def post_page():
             with open('propostas.csv', mode, encoding='UTF8', newline='') as file:
                 writer = csv.writer(file)
                 if(mode == 'w'):
-                    writer.writerow(['id_proposta', 'codigo', 'data_hora', 'titulo','sub-titulo', 'paragrafos', 'votos_publicos'])
+                    writer.writerow(['id_proposta', 'codigo', 'data_hora', 'titulo','sub-titulo', 'paragrafos', 'votos_publicos','url'])
 
                 file_exists = os.path.exists('votosDeputados.csv')
                 mode = 'a+' if file_exists else 'w'
@@ -223,7 +219,7 @@ def post_page():
                             writerIndicacaoPartido.writerow(['id_proposta', 'nome_do_partido', 'voto'])
 
                         for proposta in propostas:
-                            writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos])
+                            writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos, proposta.url])
 
                             for votoDeputado in (proposta.votos_dos_deputados):
                                 writerVotoDeputado.writerow([proposta.id_proposta, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
