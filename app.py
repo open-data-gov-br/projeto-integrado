@@ -30,6 +30,7 @@ def index():
 def get_propostas():
     df = pd.read_csv('propostas.csv', sep=',')
     df = df.groupby('id_proposta').first()
+    df = df.reset_index()
     df = df.sort_values(by='votos_publicos', ascending=False)
     df = df.head(5)
     return json.dumps(json.loads(df.to_json(orient="records")))

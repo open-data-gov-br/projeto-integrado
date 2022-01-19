@@ -18,13 +18,13 @@
         <h4 id="codigo"></h4>
         <h2 id="titulo"></h2>
         <h3 id="sub-titulo"></h3>
-        <div class="alert alert-info" role="alert">
+        <div id="infomacao" class="alert alert-info" role="alert">
             <p id="popularidade"></p>
         </div>
         <div id="paragrafos"></div>
-        <div class="col-md-12 text-center">
-            <button type="button" class="btn btn-light btn-lg">👍 Concordo</button>
-            <button type="button" class="btn btn-light btn-lg">👎 Discordo</button>
+        <div id="resposta" class="col-md-12 text-center">
+            <button id="concordo-btn" type="button" class="btn btn-light btn-lg">👍 Concordo</button>
+            <button id="discordo-btn" type="button" class="btn btn-light btn-lg">👎 Discordo</button>
         </div>
     </div>
 </div>
@@ -32,6 +32,37 @@
     let url = "http://127.0.0.1:5000/hello";
     let pergunta_atual = 0
     let perguntas;
+    let quantidade_total_de_perguntas = 0;
+    let votos = [];
+
+    let concordo_btn = document.getElementById("concordo-btn");
+    concordo_btn.addEventListener("click", vota);
+    concordo_btn.setAttribute('id_proposta','Sim');
+    
+    let discordo_btn = document.getElementById("discordo-btn");
+    discordo_btn.addEventListener("click", vota);
+    discordo_btn.setAttribute('id_proposta','Não');
+
+    function vota(event) {
+        votos.push({
+            "id_proposta": perguntas[pergunta_atual].id_proposta,
+            "voto": event.currentTarget.attributes.id_proposta.value
+        })
+
+        pergunta_atual++;
+
+        if (pergunta_atual >= quantidade_total_de_perguntas) {
+            document.getElementById("codigo").innerHTML = "";
+            document.getElementById("titulo").innerHTML = "Calculando Resultado...";
+            document.getElementById("sub-titulo").innerHTML = "";
+            document.getElementById("popularidade").innerHTML = "";
+            document.getElementById("paragrafos").innerHTML = "";
+            document.getElementById("resposta").innerHTML = "";
+            document.getElementById("infomacao").innerHTML = "";
+        } else {
+            exibe_pergunta(perguntas[pergunta_atual]);
+        }
+    }
 
     fetch(url)
         .then(async r=> console.log(trata_retorno(await r.json())))
@@ -39,6 +70,7 @@
 
     function trata_retorno(result) {
         perguntas = result;
+        quantidade_total_de_perguntas = perguntas.length;
         exibe_pergunta(perguntas[pergunta_atual])
     }
 
@@ -47,6 +79,7 @@
         document.getElementById("titulo").innerHTML = pergunta.titulo;
         document.getElementById("sub-titulo").innerHTML = pergunta["sub-titulo"];
         document.getElementById("popularidade").innerHTML = "Popularidade: " + pergunta.votos_publicos + " votos públicos";
+        document.getElementById("paragrafos").innerHTML = "";
 
         let paragrafos = pergunta.paragrafos.split(". ");
 
