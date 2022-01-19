@@ -4,35 +4,58 @@
 {% block title %}Projeto de Integração{% endblock %}
 
 {% block content %}
+<style>
+    .btn {
+        min-width: 250px;
+        font-size: 3rem;
+    }
+</style>
 <div class="container">
     <div class="page-header">
         <h1>Projeto de Integração</h1>
     </div>
     <div class="page-body">
-        <form action="/" method="post" class="form">
-            {{ form.csrf_token }}
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="row">
-                        <div class="form-group col-md-3">
-                            {{ wtf.form_field(form.uf, class='form-control') }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Iniciar</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    {% if name == 'No-name' %}
-                        <h2> Aguardando... </h2>
-                    {% else %}
-                        <h2> Teste... </h2>
-                    {% endif %}
-                </div>
-            </div>
-        </form>
+        <h4 id="codigo"></h4>
+        <h2 id="titulo"></h2>
+        <h3 id="sub-titulo"></h3>
+        <div class="alert alert-info" role="alert">
+            <p id="popularidade"></p>
+        </div>
+        <div id="paragrafos"></div>
+        <div class="col-md-12 text-center">
+            <button type="button" class="btn btn-light btn-lg">👍 Concordo</button>
+            <button type="button" class="btn btn-light btn-lg">👎 Discordo</button>
+        </div>
     </div>
 </div>
+<script>
+    let url = "http://127.0.0.1:5000/hello";
+    let pergunta_atual = 0
+    let perguntas;
+
+    fetch(url)
+        .then(async r=> console.log(trata_retorno(await r.json())))
+        .catch(e=>console.error('Error: ' + e));
+
+    function trata_retorno(result) {
+        perguntas = result;
+        exibe_pergunta(perguntas[pergunta_atual])
+    }
+
+    function exibe_pergunta(pergunta) {
+        document.getElementById("codigo").innerHTML = pergunta.codigo;
+        document.getElementById("titulo").innerHTML = pergunta.titulo;
+        document.getElementById("sub-titulo").innerHTML = pergunta["sub-titulo"];
+        document.getElementById("popularidade").innerHTML = "Popularidade: " + pergunta.votos_publicos + " votos públicos";
+
+        let paragrafos = pergunta.paragrafos.split(". ");
+
+        for (i in paragrafos) {
+            const p = document.createElement("p");
+            const node = document.createTextNode(paragrafos[i]);
+            p.appendChild(node);
+            document.getElementById("paragrafos").appendChild(p);
+        }
+    }
+</script>
 {% endblock %}
