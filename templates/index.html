@@ -21,6 +21,10 @@
         display: none;
     }
 
+    #resultado-deputados {
+        display: none;
+    }
+
 </style>
 <div class="container">
     <div class="page-header">
@@ -48,6 +52,21 @@
         <div id="resposta" class="col-md-12 text-center">
             <button id="concordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👍 Concordo</button>
             <button id="discordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👎 Discordo</button>
+        </div>
+        <div id="resultado-deputados">
+            <h3>Deputados</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Nome do Deputado</th>
+                    <th scope="col">Partido</th>
+                    <th scope="col">Pontuação</th>
+                    <th scope="col">Propostas</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -92,12 +111,15 @@
 
         if (pergunta_atual >= quantidade_total_de_perguntas) {
             document.getElementById("codigo").innerHTML = "";
-            document.getElementById("titulo").innerHTML = "Calculando Resultado...";
+            document.getElementById("titulo").innerHTML = "";
             document.getElementById("sub-titulo").innerHTML = "";
             document.getElementById("popularidade").innerHTML = "";
             document.getElementById("paragrafos").style.display = "none";
             document.getElementById("resposta").innerHTML = "";
             document.getElementById("infomacao").innerHTML = "";
+            document.getElementById("resultado-deputados").style.display = "block";
+
+            make_post(votos);
         } else {
             exibe_pergunta(perguntas[pergunta_atual]);
         }
@@ -106,6 +128,32 @@
     fetch(url)
         .then(async r=> console.log(trata_retorno(await r.json())))
         .catch(e=>console.error('Error: ' + e));
+
+    function exibe_resultado(response) {
+        let text = ""
+        for (i in response) {
+            r = response[i];
+
+            let propostas_texto = "";
+            for (y in r['propostas']) {
+                propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
+            }
+
+            text += "<tr><td>" + r['nome_do_deputado'] + "</td><td>" + r['nome_do_partido'] + "</td><td>" + r['pontuacao'] + "</td><td>" + propostas_texto + "</td></tr>";
+        }
+
+        document.getElementById("table-body").innerHTML = text;
+    }
+
+    function make_post(data) {
+        fetch("/resultado", {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(data)
+        }).then(res => {
+            console.log("Request complete! response:", res.json().then(r => exibe_resultado(r)));
+        });
+    }
 
     function trata_retorno(result) {
         perguntas = result;

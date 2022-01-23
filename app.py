@@ -32,8 +32,70 @@ def get_propostas():
     df = df.groupby('id_proposta').first()
     df = df.reset_index()
     df = df.sort_values(by='votos_publicos', ascending=False)
-    df = df.head(5)
+    df = df.head(10)
     return json.dumps(json.loads(df.to_json(orient="records")))
+
+@app.route('/resultado', methods=['POST'])
+def calcula_resultado():
+    respostas = request.json
+
+    listaDeDeputados = []
+    #listaDePartidos = None
+
+    df_propostas = pd.read_csv('propostas.csv', sep=',')
+    df_deputados = pd.read_csv('votosDeputados.csv', sep=',')
+    #df_partidos = pd.read_csv('IndicacaoVotoPartido.csv', sep=',')
+
+    df_deputados = df_deputados[df_deputados['uf'] == 'São Paulo (SP)']
+
+    for reposta in respostas:
+
+        proposta = df_propostas[df_propostas['id_proposta'] == reposta['id_proposta']].head(1)
+        titulo_da_proposta = proposta['titulo'].item()
+        codigo_da_proposta = proposta['codigo'].item()
+        deputados_pela_proposta = df_deputados[df_deputados['id_proposta'] == reposta['id_proposta']]
+
+        for index, row in deputados_pela_proposta.iterrows():
+            if row["voto"] == reposta['voto'] and int(proposta['data_hora']) == int(row['data_hora']):
+                deputado_existe = verifica_se_deputado_ja_existe(row["nome_do_deputado"], listaDeDeputados)
+                
+                if deputado_existe:
+                    for deputado in listaDeDeputados:
+                        if deputado["nome_do_deputado"] == row["nome_do_deputado"]:
+                            deputado['pontuacao'] = deputado['pontuacao'] + 1
+                            deputado['propostas'].append({
+                                'id_proposta' : int(proposta['id_proposta']),
+                                'codigo': codigo_da_proposta,
+                                'titulo' : titulo_da_proposta,
+                                'voto': reposta['voto']
+                            })
+                else:
+                    listaDeDeputados.append({
+                        'nome_do_deputado' : str(row['nome_do_deputado']),
+                        'nome_do_partido': str(row['nome_do_partido']),
+                        'propostas': [{
+                            'id_proposta' : int(proposta['id_proposta']),
+                            'codigo' : codigo_da_proposta,
+                            'titulo' : titulo_da_proposta,
+                            'voto': reposta['voto']
+                        }],
+                        'pontuacao' : 1
+                    })
+        
+        deputados_pela_proposta = None
+
+    listaDeDeputados.sort(key=lambda x: x['pontuacao'], reverse=True)
+
+    return json.dumps(listaDeDeputados)
+                
+
+def verifica_se_deputado_ja_existe(nome_do_deputado, listaDeDeputados):
+    for deputado in listaDeDeputados:
+        if deputado['nome_do_deputado'] == nome_do_deputado:
+            return True
+
+    return False
+
 
 if __name__ == '__main__':
     app.run()

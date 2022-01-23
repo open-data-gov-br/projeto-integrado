@@ -209,7 +209,7 @@ def post_page():
                 with open('votosDeputados.csv', mode, encoding='UTF8', newline='') as fileVotoDeputado:
                     writerVotoDeputado = csv.writer(fileVotoDeputado)
                     if(mode == 'w'):
-                        writerVotoDeputado.writerow(['id_proposta', 'nome_do_deputado','nome_do_partido', 'uf', 'voto'])
+                        writerVotoDeputado.writerow(['id_proposta', 'data_hora', 'nome_do_deputado','nome_do_partido', 'uf', 'voto'])
 
                     file_exists = os.path.exists('IndicacaoVotoPartido.csv')
                     mode = 'a+' if file_exists else 'w'
@@ -222,7 +222,7 @@ def post_page():
                             writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos, proposta.url])
 
                             for votoDeputado in (proposta.votos_dos_deputados):
-                                writerVotoDeputado.writerow([proposta.id_proposta, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
+                                writerVotoDeputado.writerow([proposta.id_proposta, proposta.data_hora, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
 
                             for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
                                 writerIndicacaoPartido.writerow([proposta.id_proposta, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
