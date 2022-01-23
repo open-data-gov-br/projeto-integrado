@@ -5,10 +5,22 @@
 
 {% block content %}
 <style>
-    .btn {
+    .btn-voto {
         min-width: 250px;
         font-size: 3rem;
     }
+
+    #paragrafos {
+        margin: 1rem;
+        padding: 1rem;
+        height: 50rem;
+        overflow: scroll;
+    }
+
+    #ver-mais-box {
+        display: none;
+    }
+
 </style>
 <div class="container">
     <div class="page-header">
@@ -21,10 +33,21 @@
         <div id="infomacao" class="alert alert-info" role="alert">
             <p id="popularidade"></p>
         </div>
-        <div id="paragrafos"></div>
+        <div id="paragrafos">
+            <div id="primeiros-paragrafos"></div>
+            <button id="ver-mais-btn" class="btn btn-primary" type="button">
+                Ver mais
+            </button>
+            <div id="ver-mais-box">
+                <div class="card card-body">
+                    <div id="restante-dos-paragrafos"></div>
+                </div>
+            </div>
+            <a href="#link" id="fonte-oficial" class="btn btn-info" role="button" target="_blank">Mais informações na fonte oficial</a>
+        </div>
         <div id="resposta" class="col-md-12 text-center">
-            <button id="concordo-btn" type="button" class="btn btn-light btn-lg">👍 Concordo</button>
-            <button id="discordo-btn" type="button" class="btn btn-light btn-lg">👎 Discordo</button>
+            <button id="concordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👍 Concordo</button>
+            <button id="discordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👎 Discordo</button>
         </div>
     </div>
 </div>
@@ -34,6 +57,10 @@
     let perguntas;
     let quantidade_total_de_perguntas = 0;
     let votos = [];
+    let exibirVerMais = false;
+
+    let ver_mais_btn = document.getElementById("ver-mais-btn");
+    ver_mais_btn.addEventListener("click", verMais);
 
     let concordo_btn = document.getElementById("concordo-btn");
     concordo_btn.addEventListener("click", vota);
@@ -42,6 +69,18 @@
     let discordo_btn = document.getElementById("discordo-btn");
     discordo_btn.addEventListener("click", vota);
     discordo_btn.setAttribute('id_proposta','Não');
+
+    function verMais() {
+        if (exibirVerMais) {
+            ver_mais_btn.innerHTML = "Ver mais";
+            document.getElementById("ver-mais-box").style.display = "none";
+        } else {
+            ver_mais_btn.innerHTML = "Ver menos";
+            document.getElementById("ver-mais-box").style.display = "block";
+        }
+
+        exibirVerMais = !exibirVerMais;
+    }
 
     function vota(event) {
         votos.push({
@@ -56,7 +95,7 @@
             document.getElementById("titulo").innerHTML = "Calculando Resultado...";
             document.getElementById("sub-titulo").innerHTML = "";
             document.getElementById("popularidade").innerHTML = "";
-            document.getElementById("paragrafos").innerHTML = "";
+            document.getElementById("paragrafos").style.display = "none";
             document.getElementById("resposta").innerHTML = "";
             document.getElementById("infomacao").innerHTML = "";
         } else {
@@ -79,15 +118,31 @@
         document.getElementById("titulo").innerHTML = pergunta.titulo;
         document.getElementById("sub-titulo").innerHTML = pergunta["sub-titulo"];
         document.getElementById("popularidade").innerHTML = "Popularidade: " + pergunta.votos_publicos + " votos públicos";
-        document.getElementById("paragrafos").innerHTML = "";
+        document.getElementById("primeiros-paragrafos").innerHTML = "";
+        document.getElementById("restante-dos-paragrafos").innerHTML = "";
+        document.getElementById("fonte-oficial").href = pergunta.url;
 
         let paragrafos = pergunta.paragrafos.split(". ");
 
-        for (i in paragrafos) {
+        if (paragrafos.length <= 1) {
+            paragrafos = pergunta.paragrafos.split(".");
+        }
+
+        let primeirosParagrafos = paragrafos.splice(0, 3);
+        let restanteDosParagrafos = paragrafos;
+
+        for (i in primeirosParagrafos) {
             const p = document.createElement("p");
             const node = document.createTextNode(paragrafos[i]);
             p.appendChild(node);
-            document.getElementById("paragrafos").appendChild(p);
+            document.getElementById("primeiros-paragrafos").appendChild(p);
+        }
+
+        for (i in restanteDosParagrafos) {
+            const p = document.createElement("p");
+            const node = document.createTextNode(paragrafos[i]);
+            p.appendChild(node);
+            document.getElementById("restante-dos-paragrafos").appendChild(p);
         }
     }
 </script>
