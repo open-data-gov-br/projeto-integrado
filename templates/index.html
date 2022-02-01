@@ -25,6 +25,18 @@
         display: none;
     }
 
+    #resultado-partidos {
+        display: none;
+    }
+
+    #deputados-btn {
+        display: none;
+    }
+
+    #partidos-btn {
+        display: none;
+    }
+
 </style>
 <div class="container">
     <div class="page-header">
@@ -53,6 +65,8 @@
             <button id="concordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👍 Concordo</button>
             <button id="discordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👎 Discordo</button>
         </div>
+        <button id="deputados-btn" type="button" class="btn btn-light btn-lg">Exibir Deputados</button>
+        <button id="partidos-btn" type="button" class="btn btn-light btn-lg">Exibir Partidos</button>
         <div id="resultado-deputados">
             <h3>Deputados</h3>
             <table class="table">
@@ -64,7 +78,21 @@
                     <th scope="col">Propostas</th>
                 </tr>
                 </thead>
-                <tbody id="table-body">
+                <tbody id="table-body-deputados">
+                </tbody>
+            </table>
+        </div>
+        <div id="resultado-partidos">
+            <h3>Partidos</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Partido</th>
+                    <th scope="col">Pontuação</th>
+                    <th scope="col">Propostas</th>
+                </tr>
+                </thead>
+                <tbody id="table-body-partidos">
                 </tbody>
             </table>
         </div>
@@ -81,6 +109,12 @@
     let ver_mais_btn = document.getElementById("ver-mais-btn");
     ver_mais_btn.addEventListener("click", verMais);
 
+    let deputados_btn = document.getElementById("deputados-btn");
+    deputados_btn.addEventListener("click", exibirDeputados);
+
+    let partidos_btn = document.getElementById("partidos-btn");
+    partidos_btn.addEventListener("click", exibirPartidos);
+
     let concordo_btn = document.getElementById("concordo-btn");
     concordo_btn.addEventListener("click", vota);
     concordo_btn.setAttribute('id_proposta','Sim');
@@ -88,6 +122,16 @@
     let discordo_btn = document.getElementById("discordo-btn");
     discordo_btn.addEventListener("click", vota);
     discordo_btn.setAttribute('id_proposta','Não');
+
+    function exibirDeputados() {
+        document.getElementById("resultado-deputados").style.display = "block";
+        document.getElementById("resultado-partidos").style.display = "none";
+    }
+
+    function exibirPartidos() {
+        document.getElementById("resultado-partidos").style.display = "block";
+        document.getElementById("resultado-deputados").style.display = "none";
+    }
 
     function verMais() {
         if (exibirVerMais) {
@@ -130,9 +174,12 @@
         .catch(e=>console.error('Error: ' + e));
 
     function exibe_resultado(response) {
-        let text = ""
-        for (i in response) {
-            r = response[i];
+        let text = "";
+        let deputados = response["deputados"];
+        let partidos = response["partidos"];
+
+        for (i in deputados) {
+            r = deputados[i];
 
             let propostas_texto = "";
             for (y in r['propostas']) {
@@ -142,7 +189,24 @@
             text += "<tr><td>" + r['nome_do_deputado'] + "</td><td>" + r['nome_do_partido'] + "</td><td>" + r['pontuacao'] + "</td><td>" + propostas_texto + "</td></tr>";
         }
 
-        document.getElementById("table-body").innerHTML = text;
+        document.getElementById("table-body-deputados").innerHTML = text;
+        text = "";
+
+        for (i in partidos) {
+            r = partidos[i];
+
+            let propostas_texto = "";
+            for (y in r['propostas']) {
+                propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
+            }
+
+            text += "<tr><td>" + r['nome_do_partido'] + "</td><td>" + r['pontuacao'] + "</td><td>" + propostas_texto + "</td></tr>";
+        }
+
+        document.getElementById("table-body-partidos").innerHTML = text;
+
+        document.getElementById("deputados-btn").style.display = "block";
+        document.getElementById("partidos-btn").style.display = "block";
     }
 
     function make_post(data) {

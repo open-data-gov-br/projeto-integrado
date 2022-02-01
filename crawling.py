@@ -216,7 +216,7 @@ def post_page():
                     with open('IndicacaoVotoPartido.csv', 'a+', encoding='UTF8', newline='') as fileIndicacaoPartido:
                         writerIndicacaoPartido = csv.writer(fileIndicacaoPartido)
                         if(mode == 'w'):
-                            writerIndicacaoPartido.writerow(['id_proposta', 'nome_do_partido', 'voto'])
+                            writerIndicacaoPartido.writerow(['id_proposta', 'data_hora', 'nome_do_partido', 'voto'])
 
                         for proposta in propostas:
                             writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos, proposta.url])
@@ -225,7 +225,7 @@ def post_page():
                                 writerVotoDeputado.writerow([proposta.id_proposta, proposta.data_hora, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
 
                             for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
-                                writerIndicacaoPartido.writerow([proposta.id_proposta, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
+                                writerIndicacaoPartido.writerow([proposta.id_proposta, proposta.data_hora, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])
 
 
 post_page()
