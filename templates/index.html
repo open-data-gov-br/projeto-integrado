@@ -99,7 +99,6 @@
     </div>
 </div>
 <script>
-    let url = "http://127.0.0.1:5000/hello";
     let pergunta_atual = 0
     let perguntas;
     let quantidade_total_de_perguntas = 0;
@@ -169,7 +168,7 @@
         }
     }
 
-    fetch(url)
+    fetch("/hello")
         .then(async r=> console.log(trata_retorno(await r.json())))
         .catch(e=>console.error('Error: ' + e));
 
