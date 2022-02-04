@@ -1,12 +1,8 @@
-import joblib
-import os 
-
 from flask import Flask, request, render_template
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import DataRequired
-import numpy as np
 import pandas as pd
 import json
 
