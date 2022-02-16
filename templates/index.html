@@ -128,7 +128,6 @@
                     <th scope="col">Nome do Deputado</th>
                     <th scope="col">Partido</th>
                     <th scope="col">Afinidade</th>
-                    <th scope="col">Propostas</th>
                 </tr>
                 </thead>
                 <tbody id="table-body-deputados">
@@ -142,7 +141,6 @@
                 <tr>
                     <th scope="col">Partido</th>
                     <th scope="col">Afinidade</th>
-                    <th scope="col">Propostas</th>
                 </tr>
                 </thead>
                 <tbody id="table-body-partidos">
@@ -257,8 +255,9 @@
             for (y in r['propostas']) {
                 propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " <a target='_blank' href=" + r['propostas'][y]['url'] + "> (" + r['propostas'][y]['voto'] + ") </a> <br>"
             }
-
-            text += "<tr><td>" + r['nome_do_deputado'] + "</td><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td><td>" + propostas_texto + "</td></tr>";
+            
+            text += "<tr><td><b>" + r['nome_do_deputado'] + "</b></td><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td></tr>";
+            text += "<tr><td colspan='3'>" + propostas_texto + "</td></tr>";
         }
 
         document.getElementById("table-body-deputados").innerHTML = text;
@@ -278,7 +277,8 @@
                     propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
                 }
 
-                text += "<tr><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td><td>" + propostas_texto + "</td></tr>";
+                text += "<tr><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td></tr>";
+                text += "<tr><td colspan='3'>" + propostas_texto + "</td></tr>";
             }
         }
 
