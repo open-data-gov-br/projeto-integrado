@@ -29,20 +29,68 @@
         display: none;
     }
 
-    #deputados-btn {
+    #page-body {
         display: none;
     }
 
-    #partidos-btn {
+    #resultado-page {
         display: none;
     }
 
 </style>
 <div class="container">
     <div class="page-header">
-        <h1>Projeto de Integração</h1>
+        <h1>🗳️ Voto Consciente</h1>
     </div>
-    <div class="page-body">
+    <div id="intro-page" class="col-md-12">
+        <div class="row justify-content-center">
+            <p class="col-md-6">
+                Essa aplicação identifica, metrifica, cria e expõe uma relação entre as propostas que chegam 
+                à câmara para apreciação dos deputados e suas  opiniões sobre esses mesmos conteúdos dessas propostas.
+            </p>
+        </div>
+        <div class="row justify-content-center">
+            <p class="col-md-6">
+                Opine agora em algumas propostas e conheça sua afinidade com partidos e deputados.
+            </p>
+        </div>
+        <h2>Em qual estado você vota?</h2>
+        <select class="form-select" name="estados" id="estados" style="width: 300px; height: 50px;">
+            <option value="ac">Acre (AC)</option>
+            <option value="al">Alagoas (AL)</option>
+            <option value="ap">Amapá (AP)</option>
+            <option value="am">Amazonas (AM)</option>
+            <option value="ba">Bahia (BA)</option>
+            <option value="ce">Ceará (CE)</option>
+            <option value="df">Distrito Federal (DF)</option>
+            <option value="es">Espírito Santo (ES)</option>
+            <option value="go">Goiás (GO)</option>
+            <option value="ma">Maranhão (MA)</option>
+            <option value="mt">Mato Grosso (MT)</option>
+            <option value="ms">Mato Grosso do Sul (MS)</option>
+            <option value="mg">Minas Gerais (MG)</option>
+            <option value="pa">Pará (PA)</option>
+            <option value="pb">Paraíba (PB)</option>
+            <option value="pr">Paraná (PR)</option>
+            <option value="pe">Pernambuco (PE)</option>
+            <option value="pi">Piauí (PI)</option>
+            <option value="rj">Rio de Janeiro (RJ)</option>
+            <option value="rn">Rio Grande do Norte (RN)</option>
+            <option value="rs">Rio Grande do Sul (RS)</option>
+            <option value="ro">Rondonia (RO)</option>
+            <option value="rr">Roraima (RR)</option>
+            <option value="sc">Santa Catarina (SC)</option>
+            <option value="sp">São Paulo (SP)</option>
+            <option value="se">Sergipe (SE)</option>
+            <option value="to">Tocantins (TO)</option>
+        </select>
+        <button id="continuar-btn" type="button" class="btn btn-light" style="width: 200px; height: 50px;">✔️ Continuar</button>
+        <div style="margin-top: 100px;">
+            <p>Desenvolvido por <a href="https://github.com/andredarcie">André N. Darcie</a> e <a href="https://github.com/crisslemoss">Cristiane Lemos</a></p>
+            <p>Para o curso de Pós-gradução em Ciência de Dados Aplicada pela <a href="https://www.pucminas.br">PUC Minas</a></p>
+        </div>
+    </div>
+    <div id="page-body">
         <h4 id="codigo"></h4>
         <h2 id="titulo"></h2>
         <h3 id="sub-titulo"></h3>
@@ -65,6 +113,10 @@
             <button id="concordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👍 Concordo</button>
             <button id="discordo-btn" type="button" class="btn btn-light btn-lg btn-voto">👎 Discordo</button>
         </div>
+    </div>
+    <div id="resultado-page">
+        <h2>Resultado</h2>
+        <h3 id="resultado-estados-selecionado"></h3>
         <button id="deputados-btn" type="button" class="btn btn-light btn-lg">Exibir Deputados</button>
         <button id="partidos-btn" type="button" class="btn btn-light btn-lg">Exibir Partidos</button>
         <div id="resultado-deputados">
@@ -74,7 +126,7 @@
                 <tr>
                     <th scope="col">Nome do Deputado</th>
                     <th scope="col">Partido</th>
-                    <th scope="col">Pontuação</th>
+                    <th scope="col">Afinidade</th>
                     <th scope="col">Propostas</th>
                 </tr>
                 </thead>
@@ -88,7 +140,7 @@
                 <thead>
                 <tr>
                     <th scope="col">Partido</th>
-                    <th scope="col">Pontuação</th>
+                    <th scope="col">Afinidade</th>
                     <th scope="col">Propostas</th>
                 </tr>
                 </thead>
@@ -96,6 +148,7 @@
                 </tbody>
             </table>
         </div>
+        <button id="tentar-novamente-btn" type="button" class="btn btn-light btn-lg">🔄 Tentar Novamente</button>
     </div>
 </div>
 <script>
@@ -104,6 +157,7 @@
     let quantidade_total_de_perguntas = 0;
     let votos = [];
     let exibirVerMais = false;
+    let estadoSelecionado = "Acre (AC)";
 
     let ver_mais_btn = document.getElementById("ver-mais-btn");
     ver_mais_btn.addEventListener("click", verMais);
@@ -114,6 +168,9 @@
     let partidos_btn = document.getElementById("partidos-btn");
     partidos_btn.addEventListener("click", exibirPartidos);
 
+    let tentar_novamente_btn = document.getElementById("tentar-novamente-btn");
+    tentar_novamente_btn.addEventListener("click", tentarNovamente);
+
     let concordo_btn = document.getElementById("concordo-btn");
     concordo_btn.addEventListener("click", vota);
     concordo_btn.setAttribute('id_proposta','Sim');
@@ -121,6 +178,20 @@
     let discordo_btn = document.getElementById("discordo-btn");
     discordo_btn.addEventListener("click", vota);
     discordo_btn.setAttribute('id_proposta','Não');
+
+    let continuar_btn = document.getElementById("continuar-btn");
+    continuar_btn.addEventListener("click", selecionarEstado);
+
+    function tentarNovamente() {
+        location.reload();
+    }
+
+    function selecionarEstado() {
+        let e = document.getElementById("estados");
+        estadoSelecionado = e.options[e.selectedIndex].text;
+        document.getElementById("intro-page").style.display = "none";
+        document.getElementById("page-body").style.display = "block";
+    }
 
     function exibirDeputados() {
         document.getElementById("resultado-deputados").style.display = "block";
@@ -185,7 +256,7 @@
                 propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
             }
 
-            text += "<tr><td>" + r['nome_do_deputado'] + "</td><td>" + r['nome_do_partido'] + "</td><td>" + r['pontuacao'] + "</td><td>" + propostas_texto + "</td></tr>";
+            text += "<tr><td>" + r['nome_do_deputado'] + "</td><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td><td>" + propostas_texto + "</td></tr>";
         }
 
         document.getElementById("table-body-deputados").innerHTML = text;
@@ -199,20 +270,24 @@
                 propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
             }
 
-            text += "<tr><td>" + r['nome_do_partido'] + "</td><td>" + r['pontuacao'] + "</td><td>" + propostas_texto + "</td></tr>";
+            text += "<tr><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td><td>" + propostas_texto + "</td></tr>";
         }
 
         document.getElementById("table-body-partidos").innerHTML = text;
-
-        document.getElementById("deputados-btn").style.display = "block";
-        document.getElementById("partidos-btn").style.display = "block";
+        document.getElementById("resultado-estados-selecionado").innerHTML = "Exibindo deputados e partidos para o estado: " + estadoSelecionado;
+        document.getElementById("page-body").style.display = "none";
+        document.getElementById("resultado-page").style.display = "block";
     }
 
-    function make_post(data) {
+    function make_post(votos) {
+        const post_body = {
+            "estadoSelecionado": estadoSelecionado,
+            "votos": votos
+        }
         fetch("/resultado", {
             method: "POST",
             headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify(data)
+            body: JSON.stringify(post_body)
         }).then(res => {
             console.log("Request complete! response:", res.json().then(r => exibe_resultado(r)));
         });

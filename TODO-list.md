@@ -69,3 +69,8 @@ https://www.camara.leg.br/noticias/665270-projeto-permite-que-radio-comunitaria-
 29/01/2022 - Relatorio tecnico
 05/02/2022 - Defesa
 
+Minoria
+Maioria
+Oposição
+GOV.
+

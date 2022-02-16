@@ -33,7 +33,7 @@ def get_propostas():
 
 @app.route('/resultado', methods=['POST'])
 def calcula_resultado():
-    respostas = request.json
+    body = request.json
 
     listaDeDeputados = []
     listaDePartidos = []
@@ -44,9 +44,9 @@ def calcula_resultado():
 
     # Deputados
 
-    df_deputados = df_deputados[df_deputados['uf'] == 'São Paulo (SP)']
+    df_deputados = df_deputados[df_deputados['uf'] == body["estadoSelecionado"]]
 
-    for reposta in respostas:
+    for reposta in body["votos"]:
 
         proposta = df_propostas[df_propostas['id_proposta'] == reposta['id_proposta']].head(1)
         titulo_da_proposta = proposta['titulo'].item()
@@ -86,7 +86,7 @@ def calcula_resultado():
 
     # Partidos
 
-    for reposta in respostas:
+    for reposta in body["votos"]:
 
         proposta = df_propostas[df_propostas['id_proposta'] == reposta['id_proposta']].head(1)
         titulo_da_proposta = proposta['titulo'].item()
