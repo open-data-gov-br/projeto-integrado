@@ -255,7 +255,7 @@
 
             let propostas_texto = "";
             for (y in r['propostas']) {
-                propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
+                propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " <a target='_blank' href=" + r['propostas'][y]['url'] + "> (" + r['propostas'][y]['voto'] + ") </a> <br>"
             }
 
             text += "<tr><td>" + r['nome_do_deputado'] + "</td><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td><td>" + propostas_texto + "</td></tr>";

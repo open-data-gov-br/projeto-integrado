@@ -94,6 +94,7 @@ def extrai_dados_da_proposta(soup, proposta: Proposta) -> Proposta:
 def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     url = 'https://www.camara.leg.br/internet/votacao/' + url
     page = requests.get(url)
+    
     #print(page)
     if (page.status_code != 200):
         #print(f"page.status_code 5 :{page.status_code}")
@@ -129,10 +130,12 @@ def get_dados_votacao(url, proposta: Proposta) -> Proposta:
     estado = ''
 
     for tr in trs:
-        votoDeputado: VotoDeputado = VotoDeputado('', '', '', '', '')
+        votoDeputado: VotoDeputado = VotoDeputado('', '', '', '', '', '')
+        votoDeputado.url = url
+
         if tr.find('th') != None:
             estado = tr.text.strip()
-        tds = tr.find_all('td')
+        tds = tr.find_all('td')        
 
         for td in tds:
             if not(td.has_attr('colspan')):
@@ -209,7 +212,7 @@ def post_page():
                 with open('votosDeputados.csv', mode, encoding='UTF8', newline='') as fileVotoDeputado:
                     writerVotoDeputado = csv.writer(fileVotoDeputado)
                     if(mode == 'w'):
-                        writerVotoDeputado.writerow(['id_proposta', 'data_hora', 'nome_do_deputado','nome_do_partido', 'uf', 'voto'])
+                        writerVotoDeputado.writerow(['id_proposta', 'data_hora', 'nome_do_deputado','nome_do_partido', 'uf', 'voto','url'])
 
                     file_exists = os.path.exists('IndicacaoVotoPartido.csv')
                     mode = 'a+' if file_exists else 'w'
@@ -222,7 +225,7 @@ def post_page():
                             writer.writerow([proposta.id_proposta, proposta.codigo, proposta.data_hora, proposta.titulo,proposta.sub_titulo, proposta.paragrafos, proposta.quantidade_de_votos_publicos, proposta.url])
 
                             for votoDeputado in (proposta.votos_dos_deputados):
-                                writerVotoDeputado.writerow([proposta.id_proposta, proposta.data_hora, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto])
+                                writerVotoDeputado.writerow([proposta.id_proposta, proposta.data_hora, votoDeputado.nome_do_deputado, votoDeputado.nome_do_partido, votoDeputado.uf, votoDeputado.voto, votoDeputado.url])
 
                             for indicacaoPartido in (proposta.indicacao_de_votos_dos_partidos):
                                 writerIndicacaoPartido.writerow([proposta.id_proposta, proposta.data_hora, indicacaoPartido.nome_do_partido, indicacaoPartido.voto])

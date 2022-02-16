@@ -65,7 +65,8 @@ def calcula_resultado():
                                 'id_proposta' : int(proposta['id_proposta']),
                                 'codigo': codigo_da_proposta,
                                 'titulo' : titulo_da_proposta,
-                                'voto': reposta['voto']
+                                'voto': reposta['voto'],
+                                'url' : row['url']
                             })
                 else:
                     listaDeDeputados.append({
@@ -75,7 +76,8 @@ def calcula_resultado():
                             'id_proposta' : int(proposta['id_proposta']),
                             'codigo' : codigo_da_proposta,
                             'titulo' : titulo_da_proposta,
-                            'voto': reposta['voto']
+                            'voto': reposta['voto'],
+                            'url' : row['url']
                         }],
                         'pontuacao' : 1
                     })
