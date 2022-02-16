@@ -117,6 +117,7 @@
     <div id="resultado-page">
         <h2>Resultado</h2>
         <h3 id="resultado-estados-selecionado"></h3>
+        <p id="resultado-outros"></p>
         <button id="deputados-btn" type="button" class="btn btn-light btn-lg">Exibir Deputados</button>
         <button id="partidos-btn" type="button" class="btn btn-light btn-lg">Exibir Partidos</button>
         <div id="resultado-deputados">
@@ -247,6 +248,7 @@
         let text = "";
         let deputados = response["deputados"];
         let partidos = response["partidos"];
+        let texto_outros = "";
 
         for (i in deputados) {
             r = deputados[i];
@@ -265,14 +267,22 @@
         for (i in partidos) {
             r = partidos[i];
 
-            let propostas_texto = "";
-            for (y in r['propostas']) {
-                propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
-            }
+            if (r['nome_do_partido'] == "Minoria" ||
+                r['nome_do_partido'] == "Maioria" ||
+                r['nome_do_partido'] == "Oposição" ||
+                r['nome_do_partido'] == "GOV.") {
+                texto_outros += ' <span class="badge badge-secondary"> ' + r['nome_do_partido'] + " " + (r['pontuacao'] * 10) + "%" + ' </span> ';
+            } else {
+                let propostas_texto = "";
+                for (y in r['propostas']) {
+                    propostas_texto += "- " + r['propostas'][y]['codigo'] + ": " + r['propostas'][y]['titulo'] + " (" + r['propostas'][y]['voto'] + ") <br>"
+                }
 
-            text += "<tr><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td><td>" + propostas_texto + "</td></tr>";
+                text += "<tr><td>" + r['nome_do_partido'] + "</td><td>" + (r['pontuacao'] * 10) + "% </td><td>" + propostas_texto + "</td></tr>";
+            }
         }
 
+        document.getElementById("resultado-outros").innerHTML = texto_outros;
         document.getElementById("table-body-partidos").innerHTML = text;
         document.getElementById("resultado-estados-selecionado").innerHTML = "Exibindo deputados e partidos para o estado: " + estadoSelecionado;
         document.getElementById("page-body").style.display = "none";
