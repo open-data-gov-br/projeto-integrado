@@ -271,9 +271,10 @@
 
             if (r['nome_do_partido'] == "Minoria" ||
                 r['nome_do_partido'] == "Maioria" ||
-                r['nome_do_partido'] == "Oposição" ||
-                r['nome_do_partido'] == "GOV.") {
-                texto_outros += ' <span class="badge badge-secondary"> ' + r['nome_do_partido'] + " " + (r['pontuacao'] * 10) + "%" + ' </span> ';
+                r['nome_do_partido'] == "Oposição") {
+                texto_outros += ' <span class="badge badge-secondary"> Sua opinião é ' + (r['pontuacao'] * 10) + "% " + 'compatível com a ' + r['nome_do_partido'] + " "  + ' </span> ';
+            } else if (r['nome_do_partido'] == "GOV."){
+                texto_outros += ' <span class="badge badge-secondary"> Sua opinião é ' + (r['pontuacao'] * 10) + "% " + 'compatível com o Governo atual </span> ';
             } else {
                 let propostas_texto = "";
                 for (y in r['propostas']) {
