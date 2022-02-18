@@ -314,7 +314,7 @@
 
     function exibe_pergunta(pergunta) {
         document.getElementById("codigo").innerHTML = pergunta.codigo;
-        document.getElementById("titulo").innerHTML = pergunta.titulo;
+        document.getElementById("titulo").innerHTML = pergunta.titulo + " (" + (pergunta_atual + 1) + "/10)";
         document.getElementById("sub-titulo").innerHTML = pergunta["sub-titulo"];
         document.getElementById("popularidade").innerHTML = "Popularidade: " + pergunta.votos_publicos + " votos públicos";
         document.getElementById("primeiros-paragrafos").innerHTML = "";
