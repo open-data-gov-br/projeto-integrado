@@ -54,6 +54,8 @@ def calcula_resultado():
         deputados_pela_proposta = df_deputados[df_deputados['id_proposta'] == reposta['id_proposta']]
 
         for index, row in deputados_pela_proposta.iterrows():
+            row["voto"] = "Sim" if row["voto"] == "Não" else "Não"
+
             if row["voto"] == reposta['voto'] and int(proposta['data_hora']) == int(row['data_hora']):
                 deputado_existe = verifica_se_deputado_ja_existe(row["nome_do_deputado"], listaDeDeputados)
                 
@@ -65,7 +67,7 @@ def calcula_resultado():
                                 'id_proposta' : int(proposta['id_proposta']),
                                 'codigo': codigo_da_proposta,
                                 'titulo' : titulo_da_proposta,
-                                'voto': reposta['voto'],
+                                'voto': "Concorda" if reposta['voto'] == "Sim" else "Discorda",
                                 'url' : row['url']
                             })
                 else:
@@ -76,7 +78,7 @@ def calcula_resultado():
                             'id_proposta' : int(proposta['id_proposta']),
                             'codigo' : codigo_da_proposta,
                             'titulo' : titulo_da_proposta,
-                            'voto': reposta['voto'],
+                            'voto': "Concorda" if reposta['voto'] == "Sim" else "Discorda",
                             'url' : row['url']
                         }],
                         'pontuacao' : 1
@@ -96,6 +98,8 @@ def calcula_resultado():
         partidos_pela_proposta = df_partidos[df_partidos['id_proposta'] == reposta['id_proposta']]
 
         for index, row in partidos_pela_proposta.iterrows():
+            row["voto"] = "Sim" if row["voto"] == "Não" else "Não"
+
             if row["voto"] == reposta['voto'] and int(proposta['data_hora']) == int(row['data_hora']):
                 partido_existe = verifica_se_partido_ja_existe(row["nome_do_partido"], listaDePartidos)
                 
@@ -107,7 +111,7 @@ def calcula_resultado():
                                 'id_proposta' : int(proposta['id_proposta']),
                                 'codigo': codigo_da_proposta,
                                 'titulo' : titulo_da_proposta,
-                                'voto': reposta['voto']
+                                'voto': "Concorda" if reposta['voto'] == "Sim" else "Discorda"
                             })
                 else:
                     listaDePartidos.append({
@@ -116,7 +120,7 @@ def calcula_resultado():
                             'id_proposta' : int(proposta['id_proposta']),
                             'codigo' : codigo_da_proposta,
                             'titulo' : titulo_da_proposta,
-                            'voto': reposta['voto']
+                            'voto': "Concorda" if reposta['voto'] == "Sim" else "Discorda"
                         }],
                         'pontuacao' : 1
                     })
