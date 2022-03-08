@@ -97,10 +97,17 @@
         <div id="infomacao" class="alert alert-info" role="alert">
             <p id="popularidade"></p>
         </div>
-        <blockquote class="blockquote">
-            <p class="mb-0" style="font-size: 15px !important;">O texto abaixo foi extraído de forma automática da fonte oficial: Agência Câmara Notícias - <a href="#link" id="fonte-oficial" target="_blank">leia na integra</a></p>
-        </blockquote>
         <div id="paragrafos">
+            <blockquote class="blockquote" style="border-left-color: gray">
+                <p class="mb-0" style="font-size: 15px !important;"> O texto abaixo é um resumo da proposta gerado por uma Inteligência Artificial 🤖</p>
+            </blockquote>
+
+            <div id="resumo-paragrafos"></div>
+
+            <blockquote class="blockquote">
+                <p class="mb-0" style="font-size: 15px !important;">O texto abaixo foi extraído de forma automática da fonte oficial: Agência Câmara Notícias - <a href="#link" id="fonte-oficial" target="_blank">leia na integra</a></p>
+            </blockquote>
+            
             <div id="primeiros-paragrafos"></div>
             <button id="ver-mais-btn" class="btn btn-primary" type="button">
                 Ver mais
@@ -320,6 +327,7 @@
         document.getElementById("titulo").innerHTML = pergunta.titulo + " (" + (pergunta_atual + 1) + "/10)";
         document.getElementById("sub-titulo").innerHTML = pergunta["sub-titulo"];
         document.getElementById("popularidade").innerHTML = "Popularidade: " + pergunta.votos_publicos + " votos públicos";
+        document.getElementById("resumo-paragrafos").innerHTML = "";
         document.getElementById("primeiros-paragrafos").innerHTML = "";
         document.getElementById("restante-dos-paragrafos").innerHTML = "";
         document.getElementById("fonte-oficial").href = pergunta.url;
@@ -332,6 +340,22 @@
 
         let primeirosParagrafos = paragrafos.splice(0, 3);
         let restanteDosParagrafos = paragrafos;
+        
+        console.log(pergunta.resumo);
+
+        let resumoParagrafos = pergunta.resumo.replaceAll("(", "");
+        resumoParagrafos = resumoParagrafos.replaceAll(")", "");
+        resumoParagrafos = resumoParagrafos.replaceAll(">,", "");
+        resumoParagrafos = resumoParagrafos.replaceAll(">", "");
+        resumoParagrafos = resumoParagrafos.split("<Sentence:");
+        resumoParagrafos.shift()
+
+        for (i in resumoParagrafos) {
+            const p = document.createElement("p");
+            const node = document.createTextNode(resumoParagrafos[i]);
+            p.appendChild(node);
+            document.getElementById("resumo-paragrafos").appendChild(p);
+        }
 
         for (i in primeirosParagrafos) {
             const p = document.createElement("p");
