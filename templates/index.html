@@ -218,6 +218,8 @@
     }
 
     function vota(event) {
+        window.scrollTo({top: 0});
+
         votos.push({
             "id_proposta": perguntas[pergunta_atual].id_proposta,
             "voto": event.currentTarget.attributes.id_proposta.value
